@@ -1,15 +1,23 @@
 package upm.bd.group4
 
+import org.apache.spark.sql.{SparkSession, Row}
+import org.apache.spark.sql.functions._
+
 /**
  * @author ${user.name}
  */
 object App {
   
-  def foo(x : Array[String]) = x.foldLeft("")((a,b) => a + b)
-  
   def main(args : Array[String]) {
-    println( "Hello World!" )
-    println("concat arguments = " + foo(args))
+    val spark = SparkSession.builder().getOrCreate()
+    spark.sparkContext.setLogLevel("WARN")
+
+    import spark.implicits._
+
+
+    val df = spark.read.format("csv").load("*.csv")
+
+    df.printSchema()
   }
 
 }
