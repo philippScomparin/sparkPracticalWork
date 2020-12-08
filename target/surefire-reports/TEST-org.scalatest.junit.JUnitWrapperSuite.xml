@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <testsuite 
-errors="0" failures="0" hostname="philipp-Inspiron-7580" name="org.scalatest.junit.JUnitWrapperSuite" tests="0" time="0.042" timestamp="2020-12-08T16:12:56">
+errors="0" failures="0" hostname="philipp-Inspiron-7580" name="org.scalatest.junit.JUnitWrapperSuite" tests="0" time="0.037" timestamp="2020-12-09T00:20:32">
   <properties>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="java.vm.version" value="11.0.9.1+1-Ubuntu-0ubuntu1.20.04"/>
