@@ -10,7 +10,7 @@ object App {
   
   def main(args : Array[String]) {
     val spark = SparkSession.builder().getOrCreate()
-    spark.sparkContext.setLogLevel("WARN")
+    spark.sparkContext.setLogLevel("FATAL")
 
     import spark.implicits._
 
