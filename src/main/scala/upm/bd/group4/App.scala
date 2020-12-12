@@ -1,6 +1,6 @@
 package upm.bd.group4
 
-import org.apache.spark.sql.{SparkSession, Row}
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 
 /**
@@ -45,6 +45,7 @@ object App {
     .withColumnRenamed("_c26", "NASDelay")
     .withColumnRenamed("_c27", "SecurityDelay")
     .withColumnRenamed("_c28", "LateAircraftDelay")
+    .withColumn("Cancelled", col("Cancelled").cast("boolean"))
 
     val allowedData = wholeData.drop("ArrTime")
     .drop("ActualElapsedTime")
@@ -58,7 +59,18 @@ object App {
     .drop("LateAircraftDelay")
 
 
-    allowedData.printSchema()
+    println("before deleting" + allowedData.count())
+
+    val workingData = allowedData.filter(col("CRSElapsedTime") > 0)
+    .filter(col("Cancelled")===false)
+    .withColumn("Date", concat(col("DayOfMonth"), lit("/"), col("Month"), lit("/"), col("Year")))
+    .withColumn("Date", to_date(unix_timestamp($"Date", "dd/MM/yyyy")))
+    .drop("Year")
+    .drop("Month")
+    .drop("DayOfMonth")
+    println("elapsed deleted" + workingData.count())
+    workingData.show()
+
 
  
   }
