@@ -46,6 +46,8 @@ object App {
     .withColumnRenamed("_c27", "SecurityDelay")
     .withColumnRenamed("_c28", "LateAircraftDelay")
     .withColumn("Cancelled", col("Cancelled").cast("boolean"))
+    .withColumn("CRSElapsedTime", col("CRSElapsedTime").cast("integer"))
+    
 
     val allowedData = wholeData.drop("ArrTime")
     .drop("ActualElapsedTime")
@@ -58,18 +60,60 @@ object App {
     .drop("SecurityDelay")
     .drop("LateAircraftDelay")
 
+    def convertMinutesToHour (totalMinutes : Int) = {
+      val hours : Int = totalMinutes/60
+      val minutes : Int = totalMinutes-hours*60
+      (hours, minutes)
+    }
 
-    println("before deleting" + allowedData.count())
+    def convertHoursToMinutes (totalHours : String) = {
+      var hours = 0
+      if (totalHours.length == 4){
+        hours = totalHours.take(2).toInt
+      }
+      else {
+        hours = totalHours.take(1).toInt 
+      }
+
+      val minutes = totalHours.takeRight(2).toInt
+
+      hours * 60 + minutes
+    }
+
+    val addMinutes = udf((time : String, minutes : Int) => {
+      val minutesOfTime = convertHoursToMinutes(time)
+      val totalMinutes = minutesOfTime + minutes
+      val (crsHours : Int, crsMinutes : Int) = convertMinutesToHour(totalMinutes)
+      if (crsMinutes < 10){
+        val crsMinutesWith0 = ("0" + crsMinutes.toString)
+        (crsHours.toString + crsMinutesWith0)
+      }
+      else{
+      (crsHours.toString + crsMinutes.toString)
+      }
+
+    })
+
+    
 
     val workingData = allowedData.filter(col("CRSElapsedTime") > 0)
     .filter(col("Cancelled")===false)
-    .withColumn("Date", concat(col("DayOfMonth"), lit("/"), col("Month"), lit("/"), col("Year")))
-    .withColumn("Date", to_date(unix_timestamp($"Date", "dd/MM/yyyy")))
+    .withColumn("Date", concat(col("Year"), lit("-"), col("Month"), lit("-"), col("DayOfMonth")))
+    .withColumn("Date", to_date(col("Date")))
     .drop("Year")
     .drop("Month")
     .drop("DayOfMonth")
-    println("elapsed deleted" + workingData.count())
+    .withColumn("CRSArrTime", addMinutes(col("CRSDepTime"), col("CRSElapsedTime")))
+    .drop("DepTime")
+    .drop("Cancelled")
+    .drop("CancellationCode")
+
+
     workingData.show()
+    workingData.printSchema()
+
+
+    
 
 
  
